@@ -35,6 +35,7 @@ def candidate_models(random_state: int = 42) -> dict[str, object]:
             learning_rate=0.06,
             max_leaf_nodes=21,
             l2_regularization=0.1,
+            early_stopping=False,
             random_state=random_state,
         ),
     }
