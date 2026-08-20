@@ -1,127 +1,325 @@
+<div align="center">
+
 # DriftWatch ML
 
-**Continuous model-drift observatory with an automated daily benchmark pipeline.**
+### Continuous model-drift observatory for reproducible ML robustness experiments
 
-DriftWatch ML is a compact MLOps-style project that tracks how a small model fleet behaves under controlled covariate shift. Every scheduled run trains the same candidate models on a stable reference distribution, generates a date-dependent drift scenario, evaluates predictive quality and calibration, measures feature-level Population Stability Index (PSI), updates a historical metrics table, regenerates a trend chart, and stores an auditable JSON experiment snapshot.
+[![CI](https://github.com/Shobhit9985/driftwatch-ml/actions/workflows/ci.yml/badge.svg)](https://github.com/Shobhit9985/driftwatch-ml/actions/workflows/ci.yml)
+[![Daily Observatory](https://github.com/Shobhit9985/driftwatch-ml/actions/workflows/daily-observatory.yml/badge.svg)](https://github.com/Shobhit9985/driftwatch-ml/actions/workflows/daily-observatory.yml)
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![scikit-learn](https://img.shields.io/badge/scikit--learn-ML-F7931E?logo=scikitlearn&logoColor=white)
+![MLOps](https://img.shields.io/badge/MLOps-Automated%20Benchmarking-6f42c1)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
 
-The project is intentionally designed so that automated commits contain **real experiment outputs**, not empty or timestamp-only changes.
+**Daily benchmarking • model robustness • covariate shift • PSI monitoring • reproducible experiments**
 
-## What it demonstrates
+[Latest Report](reports/latest.md) · [Experiment History](reports/history.csv) · [Model Card](MODEL_CARD.md) · [Daily Workflow](.github/workflows/daily-observatory.yml)
 
-- Reproducible ML experiments with deterministic, date-keyed drift scenarios
-- Multi-model benchmarking: Logistic Regression, Random Forest, HistGradientBoosting
-- Drift monitoring with feature-level PSI
-- Classification metrics: ROC-AUC, F1, balanced accuracy, log loss, Brier score
-- Daily experiment snapshots in JSON
-- Historical metrics in CSV + generated Markdown status report
-- Automated trend visualization
-- Pytest coverage for drift and reporting logic
-- GitHub Actions CI plus a scheduled daily observatory run
+</div>
 
-## Architecture
+---
+
+## Overview
+
+**DriftWatch ML** is an automated MLOps-style observatory that measures how multiple machine-learning models respond to controlled data drift over time.
+
+Every daily run starts from a stable reference dataset, creates a deterministic date-keyed covariate-shift scenario, evaluates a small model fleet, measures feature drift using **Population Stability Index (PSI)**, and records the resulting model-quality and calibration metrics.
+
+Instead of producing a single static benchmark, the repository builds a **longitudinal experiment history** that can be used to study robustness degradation, model ranking changes, calibration behavior, and the relationship between input drift and predictive performance.
+
+### Model fleet
+
+| Model | Role in benchmark |
+|---|---|
+| Logistic Regression | Linear, well-calibrated baseline |
+| Random Forest | Bagged nonlinear ensemble |
+| HistGradientBoosting | Boosted nonlinear tree model |
+
+### Metrics tracked
+
+- ROC-AUC
+- F1 score
+- Balanced accuracy
+- Log loss
+- Brier score
+- Composite robustness score
+- Mean feature PSI
+- Maximum feature PSI
+
+---
+
+## Results over time
+
+The chart below is regenerated automatically by the daily observatory workflow. As new runs accumulate, it becomes a longitudinal view of model robustness under changing drift conditions.
+
+![DriftWatch model performance trend](reports/metrics_trend.png)
+
+The machine-readable history is stored in [`reports/history.csv`](reports/history.csv), while the most recent ranked benchmark is published in [`reports/latest.md`](reports/latest.md).
+
+### Latest automated benchmark
+
+The current report includes:
+
+- the active drift strength and perturbation parameters;
+- the affected feature subset;
+- feature-level PSI values;
+- ranked model performance;
+- calibration metrics;
+- mean and maximum observed PSI.
+
+➡️ **[Open the latest generated report](reports/latest.md)**
+
+---
+
+## System architecture
 
 ```mermaid
 flowchart LR
-    A[Reference dataset] --> B[Train / validation split]
+    A[Reference dataset] --> B[Stable train/test split]
     B --> C1[Logistic Regression]
     B --> C2[Random Forest]
     B --> C3[HistGradientBoosting]
-    B --> D[Date-keyed drift simulator]
+
+    B --> D[Date-keyed drift generator]
     D --> E[Shifted evaluation set]
-    C1 --> F[Metrics]
+
+    C1 --> F[Model evaluation]
     C2 --> F
     C3 --> F
+    E --> F
+
     B --> G[Reference feature distributions]
-    E --> H[PSI drift analysis]
-    F --> I[Daily JSON snapshot]
+    E --> H[Feature PSI analysis]
+
+    F --> I[Daily experiment snapshot]
     H --> I
+
     I --> J[history.csv]
-    J --> K[latest.md + trend chart]
+    J --> K[latest.md]
+    J --> L[metrics_trend.png]
 ```
 
-## Repository layout
+---
+
+## Daily experiment lifecycle
+
+```text
+Scheduled / manual GitHub Action
+            │
+            ▼
+     Run test suite
+            │
+            ▼
+   Build drift scenario
+            │
+            ▼
+ Train + evaluate model fleet
+            │
+            ▼
+ Compute PSI + ML metrics
+            │
+            ▼
+ Write auditable JSON snapshot
+            │
+            ├──► experiments/YYYY-MM-DD.json
+            ├──► reports/history.csv
+            ├──► reports/latest.md
+            └──► reports/metrics_trend.png
+            │
+            ▼
+ Commit only when outputs changed
+```
+
+The pipeline is intentionally idempotent for a given date: rerunning the same experiment with unchanged inputs should not create another generated-results commit.
+
+---
+
+## Drift simulation
+
+The benchmark uses scikit-learn's **Breast Cancer Wisconsin** dataset and applies controlled covariate shift only to the evaluation features. Labels are never modified.
+
+Each date maps to a reproducible drift scenario composed of:
+
+- **mean shift** on a rotating feature subset;
+- **scale perturbation**;
+- **Gaussian measurement noise**;
+- **sparse feature masking**.
+
+This provides changing daily conditions while preserving reproducibility for a specific experiment date.
+
+---
+
+## Reproducibility
+
+DriftWatch is designed so that repeated runs of the same experiment date produce stable persisted outputs.
+
+The pipeline uses:
+
+- fixed dataset splitting;
+- seeded model training;
+- deterministic date-derived drift scenarios;
+- controlled numerical threading in CI;
+- normalized floating-point serialization;
+- idempotent history updates keyed by date and model.
+
+This makes the repository suitable for comparing model behavior across dates rather than accidentally measuring execution noise.
+
+---
+
+## Repository structure
 
 ```text
 .
-├── .github/workflows/
-│   ├── ci.yml
-│   └── daily-observatory.yml
-├── assets/
-├── experiments/              # one JSON snapshot per day
+├── .github/
+│   └── workflows/
+│       ├── ci.yml
+│       └── daily-observatory.yml
+│
+├── experiments/
+│   └── YYYY-MM-DD.json       # auditable daily experiment snapshots
+│
 ├── reports/
-│   ├── history.csv
-│   ├── latest.md
-│   └── metrics_trend.png
+│   ├── history.csv           # longitudinal benchmark history
+│   ├── latest.md             # latest ranked report
+│   └── metrics_trend.png     # automatically regenerated trend chart
+│
 ├── src/driftwatch/
-│   ├── data.py
-│   ├── drift.py
-│   ├── metrics.py
-│   ├── models.py
-│   ├── reporting.py
-│   └── run_daily.py
+│   ├── data.py               # stable dataset loading / split
+│   ├── drift.py              # drift generation + PSI
+│   ├── metrics.py            # evaluation metrics
+│   ├── models.py             # candidate model fleet
+│   ├── reporting.py          # reports and visualization
+│   └── run_daily.py          # benchmark orchestration
+│
 ├── tests/
+├── MODEL_CARD.md
+├── CONTRIBUTING.md
 ├── Makefile
 ├── pyproject.toml
 └── requirements.txt
 ```
 
+---
+
 ## Run locally
+
+### 1. Create an environment
 
 ```bash
 python -m venv .venv
-# Windows: .venv\Scripts\activate
-# macOS/Linux: source .venv/bin/activate
+```
+
+Activate it:
+
+```bash
+# Windows
+.venv\Scripts\activate
+
+# macOS / Linux
+source .venv/bin/activate
+```
+
+### 2. Install
+
+```bash
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 pip install -e .
+```
+
+### 3. Run the benchmark
+
+```bash
 python -m driftwatch.run_daily
 ```
 
-Run for a specific experiment date:
+Or reproduce a specific experiment date:
 
 ```bash
 python -m driftwatch.run_daily --date 2026-08-20
 ```
 
-Then run tests:
+### 4. Run tests
 
 ```bash
 pytest -q
 ```
 
-## Daily automation
+---
 
-`.github/workflows/daily-observatory.yml` runs every day at **07:17 America/Toronto** and can also be run manually. It:
+## Automation
+
+The repository contains two GitHub Actions workflows.
+
+### Continuous integration
+
+[`ci.yml`](.github/workflows/ci.yml) validates pushes and pull requests by installing the package and running the test suite.
+
+### Daily ML Drift Observatory
+
+[`daily-observatory.yml`](.github/workflows/daily-observatory.yml) runs every day at **07:17 America/Toronto** and can also be triggered manually.
+
+The workflow:
 
 1. checks out the default branch;
-2. installs dependencies;
-3. runs the test suite;
-4. executes the daily drift benchmark;
-5. commits only if generated experiment/report files changed;
-6. pushes the commit back to the default branch.
+2. configures Python;
+3. installs dependencies;
+4. runs the test suite;
+5. executes the date-keyed benchmark;
+6. regenerates experiment and report outputs;
+7. checks whether anything materially changed;
+8. commits and pushes only changed generated results.
 
-The workflow sets the commit author to a repository-configurable identity. For contribution attribution, set these **GitHub Actions repository variables**:
+---
 
-- `COMMIT_NAME` — your GitHub display name or username
-- `COMMIT_EMAIL` — an email address associated with your GitHub account, or your GitHub-provided `noreply` address
+## Experiment artifacts
 
-If those variables are not set, the workflow falls back to the triggering GitHub actor and the modern ID-based `noreply` format.
+Each run produces a structured snapshot such as:
 
-> GitHub only credits qualifying commits to your contribution graph when the commit email is associated with your account and the commit lands on the repository's default branch (or `gh-pages`).
+```text
+experiments/2026-08-20.json
+```
 
-## Drift scenario
+A snapshot records:
 
-The source dataset is scikit-learn's Breast Cancer Wisconsin dataset. DriftWatch never changes labels. Instead, it creates a controlled covariate shift in the held-out evaluation set by combining:
+```text
+experiment date
+├── dataset metadata
+├── drift scenario
+├── drift summary
+├── feature-level PSI
+└── model results
+    ├── ROC-AUC
+    ├── F1
+    ├── balanced accuracy
+    ├── log loss
+    ├── Brier score
+    └── robustness score
+```
 
-- mean shift on a rotating subset of features;
-- scale perturbation;
-- Gaussian measurement noise;
-- sparse feature masking.
+This creates an auditable record of exactly what the benchmark observed on each date.
 
-The drift strength and affected features are deterministic for a given calendar date, making each daily experiment reproducible while still changing over time.
+---
 
-## Why this is more than a contribution filler
+## Possible extensions
 
-The repository produces a real longitudinal benchmark. After a few weeks, `reports/history.csv` becomes a useful dataset for studying performance degradation, model robustness, calibration, and the relationship between PSI and predictive metrics. You can extend it later with Evidently, MLflow, DVC, real production telemetry, or cloud deployment without redesigning the core pipeline.
+The current architecture can be extended without replacing the core experiment pipeline. Natural next steps include:
+
+- Evidently or custom drift dashboards;
+- MLflow experiment tracking;
+- DVC-backed dataset/version management;
+- concept-drift detection in addition to covariate drift;
+- statistical drift significance tests;
+- adaptive thresholding and alert generation;
+- model champion/challenger promotion logic;
+- real production telemetry ingestion;
+- cloud-hosted monitoring and scheduled retraining.
+
+---
+
+## Model documentation
+
+For assumptions, intended use, limitations, and model details, see [`MODEL_CARD.md`](MODEL_CARD.md).
 
 ## License
 
