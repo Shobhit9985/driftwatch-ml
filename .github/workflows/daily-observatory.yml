@@ -16,6 +16,12 @@ concurrency:
 jobs:
   benchmark-and-commit:
     runs-on: ubuntu-latest
+    env:
+      PYTHONHASHSEED: "0"
+      OMP_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      NUMEXPR_NUM_THREADS: "1"
     steps:
       - name: Checkout default branch
         uses: actions/checkout@v7
