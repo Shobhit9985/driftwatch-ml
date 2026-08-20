@@ -15,8 +15,8 @@
 | Rank | Model | Robustness | ROC-AUC | F1 | Balanced Acc. | Log Loss | Brier |
 |---:|---|---:|---:|---:|---:|---:|---:|
 | 1 | `logistic_regression` | 0.9826 | 0.9968 | 0.9770 | 0.9641 | 0.0718 | 0.0206 |
-| 2 | `hist_gradient_boosting` | 0.9700 | 0.9933 | 0.9640 | 0.9375 | 0.1548 | 0.0403 |
-| 3 | `random_forest` | 0.9676 | 0.9915 | 0.9589 | 0.9360 | 0.1350 | 0.0387 |
+| 2 | `random_forest` | 0.9676 | 0.9915 | 0.9589 | 0.9360 | 0.1350 | 0.0387 |
+| 3 | `hist_gradient_boosting` | 0.9667 | 0.9923 | 0.9596 | 0.9297 | 0.1660 | 0.0406 |
 
 ## Highest feature drift (PSI)
 

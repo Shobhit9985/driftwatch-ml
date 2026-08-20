@@ -44,26 +44,26 @@
   },
   "models": {
     "hist_gradient_boosting": {
-      "balanced_accuracy": 0.9375,
-      "brier_score": 0.040299691795447706,
-      "f1": 0.963963963963964,
-      "log_loss": 0.15484242928632327,
-      "robustness_score": 0.969972304121794,
-      "roc_auc": 0.9932827102803738
+      "balanced_accuracy": 0.9296875,
+      "brier_score": 0.04057699969598629,
+      "f1": 0.9596412556053812,
+      "log_loss": 0.16598943688344273,
+      "robustness_score": 0.9666763823194923,
+      "roc_auc": 0.9922605140186915
     },
     "logistic_regression": {
       "balanced_accuracy": 0.9640771028037383,
       "brier_score": 0.020589119055737765,
       "f1": 0.9769585253456221,
-      "log_loss": 0.0718117154662595,
+      "log_loss": 0.07181171546625952,
       "robustness_score": 0.9825590195298886,
       "roc_auc": 0.9967873831775701
     },
     "random_forest": {
       "balanced_accuracy": 0.9359667056074766,
-      "brier_score": 0.03872984461645639,
+      "brier_score": 0.0387298446164564,
       "f1": 0.958904109589041,
-      "log_loss": 0.13504123657191588,
+      "log_loss": 0.1350412365719159,
       "robustness_score": 0.9676037390692723,
       "roc_auc": 0.9915303738317758
     }
