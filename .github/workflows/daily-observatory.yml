@@ -1,0 +1,68 @@
+name: Daily ML Drift Observatory
+
+on:
+  schedule:
+    - cron: "17 7 * * *"
+      timezone: "America/Toronto"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-drift-observatory
+  cancel-in-progress: false
+
+jobs:
+  benchmark-and-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout default branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+
+      - name: Run tests
+        run: pytest -q
+
+      - name: Run daily benchmark
+        env:
+          TZ: America/Toronto
+        run: |
+          RUN_DATE=$(date +%F)
+          python -m driftwatch.run_daily --date "$RUN_DATE"
+
+      - name: Commit generated experiment outputs
+        env:
+          CONFIGURED_NAME: ${{ vars.COMMIT_NAME }}
+          CONFIGURED_EMAIL: ${{ vars.COMMIT_EMAIL }}
+          ACTOR_NAME: ${{ github.actor }}
+          ACTOR_ID: ${{ github.actor_id }}
+        run: |
+          NAME="${CONFIGURED_NAME:-$ACTOR_NAME}"
+          EMAIL="${CONFIGURED_EMAIL:-${ACTOR_ID}+${ACTOR_NAME}@users.noreply.github.com}"
+
+          git config user.name "$NAME"
+          git config user.email "$EMAIL"
+
+          git add experiments/ reports/
+          if git diff --cached --quiet; then
+            echo "No generated changes to commit."
+            exit 0
+          fi
+
+          RUN_DATE=$(TZ=America/Toronto date +%F)
+          git commit -m "chore(observatory): daily drift benchmark ${RUN_DATE}"
+          git push
