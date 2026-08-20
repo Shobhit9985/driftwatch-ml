@@ -19,14 +19,41 @@ from .reporting import (
 )
 
 
+SERIALIZED_FLOAT_PRECISION = 12
+
+
+def _round_floats(value):
+    """Normalize floating-point values before persisting experiment outputs.
+
+    Tiny platform-level numerical differences (for example,
+    0.13504123657191588 vs 0.1350412365719159) should not create a new
+    repository commit when the underlying experiment is unchanged.
+    """
+    if isinstance(value, (float, np.floating)):
+        return round(float(value), SERIALIZED_FLOAT_PRECISION)
+    if isinstance(value, dict):
+        return {key: _round_floats(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_round_floats(item) for item in value]
+    if isinstance(value, tuple):
+        return tuple(_round_floats(item) for item in value)
+    return value
+
+
 def run(experiment_date: date, root: Path) -> dict:
     data = load_reference_dataset()
     scenario = build_scenario(experiment_date, data.feature_names)
     X_shifted = apply_covariate_shift(data.X_train, data.X_test, scenario)
 
-    psi_by_feature = feature_psi(data.X_train, X_shifted, data.feature_names)
-    mean_psi = float(np.mean(list(psi_by_feature.values())))
-    max_psi = float(np.max(list(psi_by_feature.values())))
+    psi_by_feature = _round_floats(
+        feature_psi(data.X_train, X_shifted, data.feature_names)
+    )
+    mean_psi = round(
+        float(np.mean(list(psi_by_feature.values()))), SERIALIZED_FLOAT_PRECISION
+    )
+    max_psi = round(
+        float(np.max(list(psi_by_feature.values()))), SERIALIZED_FLOAT_PRECISION
+    )
 
     model_results: dict[str, dict[str, float]] = {}
     history_rows: list[dict] = []
@@ -34,31 +61,36 @@ def run(experiment_date: date, root: Path) -> dict:
         model.fit(data.X_train, data.y_train)
         metrics = evaluate_binary_classifier(model, X_shifted, data.y_test)
         metrics["robustness_score"] = robustness_score(metrics)
+        metrics = _round_floats(metrics)
         model_results[model_name] = metrics
         history_rows.append(
-            {
-                "date": experiment_date.isoformat(),
-                "model": model_name,
-                "drift_strength": scenario.strength,
-                "mean_psi": mean_psi,
-                "max_psi": max_psi,
-                **metrics,
-            }
+            _round_floats(
+                {
+                    "date": experiment_date.isoformat(),
+                    "model": model_name,
+                    "drift_strength": scenario.strength,
+                    "mean_psi": mean_psi,
+                    "max_psi": max_psi,
+                    **metrics,
+                }
+            )
         )
 
-    payload = {
-        "date": experiment_date.isoformat(),
-        "dataset": {
-            "name": "sklearn_breast_cancer",
-            "train_rows": int(len(data.X_train)),
-            "evaluation_rows": int(len(data.X_test)),
-            "feature_count": int(len(data.feature_names)),
-        },
-        "scenario": asdict(scenario),
-        "drift_summary": {"mean_psi": mean_psi, "max_psi": max_psi},
-        "feature_psi": psi_by_feature,
-        "models": model_results,
-    }
+    payload = _round_floats(
+        {
+            "date": experiment_date.isoformat(),
+            "dataset": {
+                "name": "sklearn_breast_cancer",
+                "train_rows": int(len(data.X_train)),
+                "evaluation_rows": int(len(data.X_test)),
+                "feature_count": int(len(data.feature_names)),
+            },
+            "scenario": asdict(scenario),
+            "drift_summary": {"mean_psi": mean_psi, "max_psi": max_psi},
+            "feature_psi": psi_by_feature,
+            "models": model_results,
+        }
+    )
 
     experiment_path = root / "experiments" / f"{experiment_date.isoformat()}.json"
     history_path = root / "reports" / "history.csv"
