@@ -1,37 +1,37 @@
 # Latest DriftWatch Report
 
-**Experiment date:** 2026-08-31
+**Experiment date:** 2026-09-01
 
 ## Drift scenario
 
-- Drift strength: `0.515`
-- Scale factor: `1.051`
-- Noise ratio: `0.087`
-- Mask ratio: `0.023`
-- Affected features: mean texture, mean concavity, mean concave points, compactness error, symmetry error, worst compactness, worst concave points, worst fractal dimension
+- Drift strength: `0.464`
+- Scale factor: `0.954`
+- Noise ratio: `0.081`
+- Mask ratio: `0.021`
+- Affected features: mean smoothness, mean symmetry, smoothness error, compactness error, worst compactness, worst concave points, worst symmetry
 
 ## Model ranking
 
 | Rank | Model | Robustness | ROC-AUC | F1 | Balanced Acc. | Log Loss | Brier |
 |---:|---|---:|---:|---:|---:|---:|---:|
-| 1 | `logistic_regression` | 0.9768 | 0.9987 | 0.9615 | 0.9595 | 0.0994 | 0.0304 |
-| 2 | `random_forest` | 0.9614 | 0.9912 | 0.9423 | 0.9345 | 0.1591 | 0.0468 |
-| 3 | `hist_gradient_boosting` | 0.9610 | 0.9909 | 0.9429 | 0.9314 | 0.1517 | 0.0450 |
+| 1 | `logistic_regression` | 0.9918 | 0.9980 | 0.9907 | 0.9844 | 0.0613 | 0.0149 |
+| 2 | `hist_gradient_boosting` | 0.9793 | 0.9920 | 0.9772 | 0.9609 | 0.1036 | 0.0278 |
+| 3 | `random_forest` | 0.9714 | 0.9930 | 0.9633 | 0.9438 | 0.1305 | 0.0359 |
 
 ## Highest feature drift (PSI)
 
 | Feature | PSI |
 |---|---:|
-| mean concavity | 2.6306 |
-| compactness error | 1.6328 |
-| mean concave points | 0.8246 |
-| worst compactness | 0.5286 |
-| symmetry error | 0.5273 |
-| worst fractal dimension | 0.3416 |
-| worst concave points | 0.2685 |
-| mean texture | 0.2413 |
+| worst symmetry | 0.3425 |
+| worst concave points | 0.2906 |
+| compactness error | 0.2879 |
+| worst compactness | 0.2196 |
+| texture error | 0.1848 |
+| fractal dimension error | 0.1570 |
+| mean symmetry | 0.1469 |
+| smoothness error | 0.1416 |
 
-**Mean PSI:** `0.2963`  
-**Max PSI:** `2.6306`
+**Mean PSI:** `0.1130`  
+**Max PSI:** `0.3425`
 
 _Generated automatically by the DriftWatch daily observatory pipeline._
