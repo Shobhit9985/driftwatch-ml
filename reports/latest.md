@@ -1,37 +1,37 @@
 # Latest DriftWatch Report
 
-**Experiment date:** 2026-10-31
+**Experiment date:** 2026-11-01
 
 ## Drift scenario
 
-- Drift strength: `0.385`
+- Drift strength: `0.394`
 - Scale factor: `0.961`
-- Noise ratio: `0.071`
-- Mask ratio: `0.018`
-- Affected features: mean compactness, mean concave points, mean symmetry, texture error, compactness error, worst perimeter, worst smoothness
+- Noise ratio: `0.072`
+- Mask ratio: `0.019`
+- Affected features: mean radius, mean symmetry, area error, worst texture, worst perimeter, worst area, worst symmetry
 
 ## Model ranking
 
 | Rank | Model | Robustness | ROC-AUC | F1 | Balanced Acc. | Log Loss | Brier |
 |---:|---|---:|---:|---:|---:|---:|---:|
-| 1 | `logistic_regression` | 0.9901 | 0.9987 | 0.9859 | 0.9828 | 0.0675 | 0.0172 |
-| 2 | `hist_gradient_boosting` | 0.9698 | 0.9901 | 0.9636 | 0.9406 | 0.1346 | 0.0347 |
-| 3 | `random_forest` | 0.9661 | 0.9924 | 0.9537 | 0.9344 | 0.1354 | 0.0387 |
+| 1 | `logistic_regression` | 0.9784 | 0.9961 | 0.9727 | 0.9531 | 0.0836 | 0.0244 |
+| 2 | `random_forest` | 0.9698 | 0.9930 | 0.9640 | 0.9375 | 0.1408 | 0.0409 |
+| 3 | `hist_gradient_boosting` | 0.9672 | 0.9940 | 0.9596 | 0.9297 | 0.1914 | 0.0427 |
 
 ## Highest feature drift (PSI)
 
 | Feature | PSI |
 |---|---:|
-| mean concave points | 0.2587 |
-| compactness error | 0.2176 |
-| worst perimeter | 0.2012 |
-| worst smoothness | 0.1691 |
-| worst concavity | 0.1587 |
-| mean compactness | 0.1485 |
-| texture error | 0.1389 |
-| fractal dimension error | 0.1075 |
+| area error | 0.6890 |
+| worst area | 0.4075 |
+| worst texture | 0.2401 |
+| worst symmetry | 0.2219 |
+| worst perimeter | 0.2044 |
+| worst concavity | 0.1774 |
+| texture error | 0.1523 |
+| fractal dimension error | 0.1347 |
 
-**Mean PSI:** `0.1003`  
-**Max PSI:** `0.2587`
+**Mean PSI:** `0.1300`  
+**Max PSI:** `0.6890`
 
 _Generated automatically by the DriftWatch daily observatory pipeline._
