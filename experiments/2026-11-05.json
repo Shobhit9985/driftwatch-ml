@@ -1,0 +1,95 @@
+{
+  "dataset": {
+    "evaluation_rows": 171,
+    "feature_count": 30,
+    "name": "sklearn_breast_cancer",
+    "train_rows": 398
+  },
+  "date": "2026-11-05",
+  "drift_summary": {
+    "max_psi": 0.42344899429,
+    "mean_psi": 0.100326759567
+  },
+  "feature_psi": {
+    "area error": 0.42344899429,
+    "compactness error": 0.074942473335,
+    "concave points error": 0.118010599712,
+    "concavity error": 0.253707163437,
+    "fractal dimension error": 0.145481648761,
+    "mean area": 0.042496658974,
+    "mean compactness": 0.056902046538,
+    "mean concave points": 0.063901861922,
+    "mean concavity": 0.127744857719,
+    "mean fractal dimension": 0.059711500922,
+    "mean perimeter": 0.04259070389,
+    "mean radius": 0.027323544082,
+    "mean smoothness": 0.060844122378,
+    "mean symmetry": 0.091853395706,
+    "mean texture": 0.092287248901,
+    "perimeter error": 0.091316472186,
+    "radius error": 0.058990881185,
+    "smoothness error": 0.079842139719,
+    "symmetry error": 0.053751273367,
+    "texture error": 0.231988452171,
+    "worst area": 0.018140297448,
+    "worst compactness": 0.049351000341,
+    "worst concave points": 0.099396168375,
+    "worst concavity": 0.1436537164,
+    "worst fractal dimension": 0.097588100577,
+    "worst perimeter": 0.053310729606,
+    "worst radius": 0.078383892425,
+    "worst smoothness": 0.141643828771,
+    "worst symmetry": 0.057716721192,
+    "worst texture": 0.073482292677
+  },
+  "models": {
+    "hist_gradient_boosting": {
+      "balanced_accuracy": 0.945385514019,
+      "brier_score": 0.037299253453,
+      "f1": 0.957746478873,
+      "log_loss": 0.115811744098,
+      "robustness_score": 0.969341681868,
+      "roc_auc": 0.991676401869
+    },
+    "logistic_regression": {
+      "balanced_accuracy": 0.964150116822,
+      "brier_score": 0.026658933434,
+      "f1": 0.966507177033,
+      "log_loss": 0.09075121034,
+      "robustness_score": 0.979006470047,
+      "roc_auc": 0.99722546729
+    },
+    "random_forest": {
+      "balanced_accuracy": 0.92355432243,
+      "brier_score": 0.03833971818,
+      "f1": 0.938388625592,
+      "log_loss": 0.131410370571,
+      "robustness_score": 0.959297685953,
+      "roc_auc": 0.992260514019
+    }
+  },
+  "scenario": {
+    "experiment_date": "2026-11-05",
+    "feature_indices": [
+      1,
+      11,
+      13,
+      16,
+      24,
+      28
+    ],
+    "feature_names": [
+      "mean texture",
+      "texture error",
+      "area error",
+      "concavity error",
+      "worst smoothness",
+      "worst symmetry"
+    ],
+    "mask_ratio": 0.012187269581,
+    "noise_ratio": 0.049642067133,
+    "scale_factor": 1.020535055945,
+    "shift_direction": 1.0,
+    "strength": 0.205350559445
+  }
+}
